@@ -27,8 +27,6 @@ public class Main {
 
             Socket socketDuClient = monServerDeSocket.accept();
             System.out.println("Connexion avec : " + socketDuClient.getInetAddress());
-
-
             BufferedReader fluxEntree = new BufferedReader(new InputStreamReader(socketDuClient.getInputStream()));
             PrintStream fluxSortie = new PrintStream(socketDuClient.getOutputStream());
 
@@ -45,7 +43,7 @@ public class Main {
 
 
                     if (messageRecu.equalsIgnoreCase("HELLO")) {
-                        reponse = "Vous êtes connectés au serveur SUPERSERVEUR...";
+                        reponse = "Vous êtes connectés au serveur SUPERSERVEUR...Ca va ";
                     } else if (messageRecu.equalsIgnoreCase("TIME")) {
 
                         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -53,11 +51,10 @@ public class Main {
                         reponse = "Voici la date et l'heure : " + formatter.format(date);
                     } else if (messageRecu.startsWith("ECHO ")) {
 
-                        reponse = messageRecu.substring(5);
                     } else if (messageRecu.equalsIgnoreCase("YOU") || messageRecu.equalsIgnoreCase("WHOAREYOU?")) {
 
                         reponse = "Serveur @ " + socketDuClient.getLocalAddress() + ":" + socketDuClient.getLocalPort();
-                    } else if (messageRecu.equalsIgnoreCase("ME") || messageRecu.equalsIgnoreCase("WHOAMI?")) {
+                    } else if (messageRecu.equalsIgnoreCase("ME") || messageRecu.equalsIgnoreCase("WHOAM?")) {
 
                         reponse = "Client @ " + socketDuClient.getInetAddress() + ":" + socketDuClient.getPort();
                     } else if (messageRecu.equalsIgnoreCase("FIN") || messageRecu.equalsIgnoreCase("EXIT")) {
