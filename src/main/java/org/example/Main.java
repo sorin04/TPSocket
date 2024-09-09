@@ -4,24 +4,28 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Enumeration;
 
 public class Main {
 
     public static void main(String[] args) throws IOException {
 
-        final int port = 4000;
+        final int port = 5000;
         boolean deconnexionClientDemandee = false;
         char[] bufferEntree = new char[65535];
-        String messageRecu = null;
-        String reponse = null;
+        String messageRecu;
+        String reponse;
 
+        String localIPAddress = getLocalIPAddress();
 
         ServerSocket monServerDeSocket = new ServerSocket(port);
-        System.out.println("Serveur en fonctionnement.");
+        System.out.println("Serveur en fonctionnement sur IP: " + localIPAddress);
 
         while (true) {
 
@@ -34,30 +38,30 @@ public class Main {
                 System.out.println("Attente d'une requête...");
                 fluxSortie.println("Veuillez entrer une requête (HELLO, TIME, ECHO, YOU, ME, FIN) :");
 
-
                 int NBLus = fluxEntree.read(bufferEntree);
                 messageRecu = new String(bufferEntree, 0, NBLus).trim();
 
                 if (messageRecu.length() != 0) {
                     System.out.println("\t\tMessage reçu : " + messageRecu);
 
-
                     if (messageRecu.equalsIgnoreCase("HELLO")) {
-                        reponse = "Vous êtes connectés au serveur SUPERSERVEUR...Ca va ";
-                    } else if (messageRecu.equalsIgnoreCase("TIME")) {
+                        reponse = "Bienvenue !";
 
+                    } else if (messageRecu.equalsIgnoreCase("TIME")) {
                         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                         Date date = new Date();
                         reponse = "Voici la date et l'heure : " + formatter.format(date);
-                    } else if (messageRecu.startsWith("ECHO ")) {
 
-                    } else if (messageRecu.equalsIgnoreCase("YOU") || messageRecu.equalsIgnoreCase("WHOAREYOU?")) {
+                    } else if (messageRecu.startsWith("ECHO")) {
+                        reponse = messageRecu.substring(4);
 
-                        reponse = "Serveur @ " + socketDuClient.getLocalAddress() + ":" + socketDuClient.getLocalPort();
-                    } else if (messageRecu.equalsIgnoreCase("ME") || messageRecu.equalsIgnoreCase("WHOAM?")) {
+                    } else if (messageRecu.equalsIgnoreCase("YOU")) {
+                        reponse = "Serveur @IP " + localIPAddress + ":PORT " + socketDuClient.getLocalPort();
 
-                        reponse = "Client @ " + socketDuClient.getInetAddress() + ":" + socketDuClient.getPort();
-                    } else if (messageRecu.equalsIgnoreCase("FIN") || messageRecu.equalsIgnoreCase("EXIT")) {
+                    } else if (messageRecu.equalsIgnoreCase("ME")) {
+                        reponse = "Client @IP " + socketDuClient.getInetAddress() + ":PORT " + socketDuClient.getPort();
+
+                    } else if (messageRecu.equalsIgnoreCase("FIN")) {
                         reponse = "JE VOUS DECONNECTE !!!";
                         deconnexionClientDemandee = true;
                     } else {
@@ -77,5 +81,27 @@ public class Main {
             // Réinitialisation pour le client suivant
             deconnexionClientDemandee = false;
         }
+    }
+
+
+    public static String getLocalIPAddress() {
+        try {
+            Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
+            while (interfaces.hasMoreElements()) {
+                NetworkInterface networkInterface = interfaces.nextElement();
+                if (networkInterface.isUp() && !networkInterface.isLoopback()) {
+                    Enumeration<InetAddress> inetAddresses = networkInterface.getInetAddresses();
+                    while (inetAddresses.hasMoreElements()) {
+                        InetAddress inetAddress = inetAddresses.nextElement();
+                        if (inetAddress instanceof java.net.Inet4Address) {
+                            return inetAddress.getHostAddress();
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return "127.0.0.1";
     }
 }
