@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 
 public class Outil {
-    public ArrayList<IPV4> getSystemIP() {
+    public static ArrayList<IPV4> getSystemIP() {
         ArrayList<IPV4> ipAddresses = new ArrayList<>();
         try {
             Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();

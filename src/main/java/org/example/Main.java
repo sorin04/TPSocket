@@ -7,19 +7,31 @@ import java.io.PrintStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Optional;
 
 public class Main {
 
     public static void main(String[] args) throws IOException {
+        new Thread(() -> {
+            try {
+                monServeur();
+            } catch (IOException e) {
+                System.err.println("Erreur lors de l'exécution du serveur : " + e.getMessage());
+            }
+        }).start();
+    }
+    public static void monServeur()throws IOException {
         final int port = 5000;
         boolean deconnexionClientDemandee = false;
         char[] bufferEntree = new char[65535];
+        Outil outil = new Outil();
         String messageRecu;
         String reponse;
+        ArrayList<IPV4> mesInterface =Outil.getSystemIP();
 
-        Outil outil = new Outil();
+
         String ipAddress = "127.0.0.1";
 
 
@@ -38,6 +50,9 @@ public class Main {
                 fluxSortie.println("Veuillez entrer une requête (HELLO, TIME, ECHO, YOU, ME, FIN) :");
 
                 int NBLus = fluxEntree.read(bufferEntree);
+                if (NBLus == -1){
+                    break;
+                }
                 messageRecu = new String(bufferEntree, 0, NBLus).trim();
 
                 if (messageRecu.length() != 0) {
@@ -73,12 +88,20 @@ public class Main {
                 }
             }
 
+
+
             // Fermeture de la connexion avec le client
+            fluxEntree.close();
+            fluxSortie.close();
             socketDuClient.close();
             System.out.println("Client déconnecté.");
+            monServerDeSocket.close();
+            System.out.println("Serveur arrêté.");
 
             // Réinitialisation pour le client suivant
-            deconnexionClientDemandee = false;
+            //deconnexionClientDemandee = false;
+        }
+
         }
     }
-}
+
